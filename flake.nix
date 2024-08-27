@@ -37,6 +37,7 @@
         srcFiles = fs.unions [
           (fs.fileFilter (file: file.hasExt "toml") ./.)
           (fs.fileFilter (file: file.hasExt "rs") ./src)
+          (fs.fileFilter (file: file.hasExt "py") ./.)
           (fs.fileFilter (file: file.name == "Cargo.lock") ./.)
           # (fs.fileFilter (file: file.name == "Cargo.toml") ./.)
         ];
@@ -55,6 +56,7 @@
           inherit src cargoArtifacts;
           buildInputs = [pkgs.python312];
         };
+        wheel_name = "hello_pyo3-0.1.0-cp312-cp312-linux_x86_64.whl";
         crate_wheel = mycrate.overrideAttrs (old: {
           nativeBuildInputs = old.nativeBuildInputs ++ [pkgs.maturin];
           buildPhase =
@@ -62,20 +64,30 @@
             + ''
               maturin build --offline --target-dir ./target
             '';
-          # installPhase =
-          #   old.installPhase
-          #   + ''
-          #     cp target/wheels/${project_name}-${project_version}-${wheel_tail}.whl $out/
-          #   '';
+          installPhase =
+            old.installPhase
+            + ''
+              cp target/wheels/${wheel_name} $out/
+            '';
         });
         pyDevSet = with pypkgs; [
           venvShellHook
           pyvista
           # numpy
         ];
+        pythonpkg = pypkgs.buildPythonPackage {
+          pname = "hello-pyo3";
+          format = "wheel";
+          version = "0.1.0";
+          src = "${crate_wheel}/${wheel_name}";
+          doCheck = false;
+        };
       in {
         # packages.default = pkgs.hello;
         packages.default = crate_wheel;
+        packages.pydist = python.withPackages (ps: [
+          pythonpkg
+        ]);
         dbg.src = src;
         devShells.default = pkgs.mkShell {
           venvDir = ".venv";
