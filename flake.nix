@@ -35,10 +35,10 @@
 
         fs = pkgs.lib.fileset;
         srcFiles = fs.unions [
-          # (fs.fileFilter (file: file.hasExt "toml") ./.)
+          (fs.fileFilter (file: file.hasExt "toml") ./.)
           (fs.fileFilter (file: file.hasExt "rs") ./src)
           (fs.fileFilter (file: file.name == "Cargo.lock") ./.)
-          (fs.fileFilter (file: file.name == "Cargo.toml") ./.)
+          # (fs.fileFilter (file: file.name == "Cargo.toml") ./.)
         ];
         src = fs.toSource {
           root = ./.;
@@ -68,15 +68,23 @@
           #     cp target/wheels/${project_name}-${project_version}-${wheel_tail}.whl $out/
           #   '';
         });
+        pyDevSet = with pypkgs; [
+          venvShellHook
+          pyvista
+          # numpy
+        ];
       in {
         # packages.default = pkgs.hello;
-        # packages.default = mycrate;
-        # dbg.src = src;
+        packages.default = crate_wheel;
+        dbg.src = src;
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            maturin
-            rust
-          ];
+          venvDir = ".venv";
+          buildInputs = with pkgs;
+            [
+              maturin
+              rust
+            ]
+            ++ pyDevSet;
         };
         # devShells.default = craneLib.devShell {
         #   name = "rspy";

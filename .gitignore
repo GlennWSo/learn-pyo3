@@ -1,1 +1,6 @@
 .direnv
+.venv
+target
+*.so
+result
+*/__pycache__
