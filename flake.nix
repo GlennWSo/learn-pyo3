@@ -82,21 +82,23 @@
           src = "${crate_wheel}/${wheel_name}";
           doCheck = false;
         };
-      in {
-        # packages.default = pkgs.hello;
-        packages.default = crate_wheel;
-        packages.pydist = python.withPackages (ps: [
+        pydist = python.withPackages (ps: [
           pythonpkg
+          ps.ipython
         ]);
+      in {
+        packages = {
+          inherit pydist;
+          default = pydist;
+        };
         dbg.src = src;
         devShells.default = pkgs.mkShell {
           venvDir = ".venv";
-          buildInputs = with pkgs;
-            [
-              maturin
-              rust
-            ]
-            ++ pyDevSet;
+          buildInputs = with pkgs; [
+            pydist
+            maturin
+            rust
+          ];
         };
         # devShells.default = craneLib.devShell {
         #   name = "rspy";

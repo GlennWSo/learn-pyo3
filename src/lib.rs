@@ -7,7 +7,7 @@ fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
 }
 
 /// A Python module implemented in Rust.
-#[pymodule]
+#[pymodule(name="native_lib")]
 fn hello_pyo3(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
     Ok(())

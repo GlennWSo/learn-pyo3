@@ -14,3 +14,5 @@ dynamic = ["version"]
 dependencies = ["pyvista==0.44.1"]
 [tool.maturin]
 features = ["pyo3/extension-module"]
+module-name = "hello_pyo3.native_lib"
+python-source = "python"
