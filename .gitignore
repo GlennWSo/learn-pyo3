@@ -3,5 +3,5 @@
 target
 *.so
 result
-*/__pycache__
+**/__pycache__
 derp
